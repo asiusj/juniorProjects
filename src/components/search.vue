@@ -229,4 +229,9 @@ export default class Search extends Vue {
 		opacity: 0;
 	}
 }
+@media (max-width: 1024px) {
+	.input-field {
+		margin: 12px 0 6px;
+	}
+}
 </style>

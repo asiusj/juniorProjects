@@ -12,6 +12,7 @@ type Lib = {
 		phones: [
 			{
 				value: string;
+				comment: string;
 			}
 		];
 		email: string;

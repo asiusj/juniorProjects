@@ -12,11 +12,11 @@ export interface State {
 	sort: Sort;
 	filter: {
 		search?: string;
-		region?: {
+		region: {
 			value: string[];
 			all: string[];
 		};
-		timezone?: {
+		timezone: {
 			value: string[];
 			all: string[];
 		};
@@ -65,9 +65,18 @@ export default createStore<State>({
 		setFilterSearch(state, search: string) {
 			state.filter.search = search;
 		},
+		setFilter(state, filter) {
+			state.filter = filter;
+		},
+		setFilterRegion(state, region: string[]) {
+			state.filter.region.value = region;
+		},
+		setFilterTimeZone(state, timeZone: string[]) {
+			state.filter.timezone.value = timeZone;
+		},
 	},
 	actions: {
-		getLibs({ commit, state }) {
+		getLibs({ commit, state, dispatch }) {
 			axios
 				.get(
 					dbAddr + `?_sort=${state.sort.by}&_order=${state.sort.order}`
@@ -77,11 +86,31 @@ export default createStore<State>({
 				)
 				.then((res) => {
 					commit("updateLibsList", res.data);
+					dispatch("createFilter");
 				});
 		},
 		sort({ commit }, sort: Sort) {
 			commit("setSort", sort);
 			commit("sortLibs");
+		},
+		createFilter({ state, commit }) {
+			const locales: { [key: string]: boolean } = {};
+			const timeZones: { [key: string]: boolean } = {};
+			state.libs.forEach((lib: Lib) => {
+				locales[lib.locale.name] = true;
+				timeZones[lib.locale.timezone] = true;
+			});
+			commit("setFilter", {
+				search: "",
+				region: {
+					value: [],
+					all: Object.keys(locales),
+				},
+				timezone: {
+					value: [],
+					all: Object.keys(timeZones),
+				},
+			});
 		},
 	},
 	getters: {
@@ -89,7 +118,7 @@ export default createStore<State>({
 			const libs = new Array(0).concat(state.libs);
 			let res = libs;
 			if (state.filter.search) {
-				res = libs.filter((lib: Lib) => {
+				res = res.filter((lib: Lib) => {
 					if (state.filter.search) {
 						return (
 							lib.name.includes(state.filter.search) ||
@@ -99,20 +128,20 @@ export default createStore<State>({
 					}
 				});
 			}
-			// if (state.filter.region) {
-			// 	res = libs.filter((lib: Lib) => {
-			// 		if (state.filter.region) {
-			// 			return lib.locale.name.includes(state.filter.region);
-			// 		}
-			// 	});
-			// }
-			// if (state.filter.timezone) {
-			// 	res = libs.filter((lib: Lib) => {
-			// 		if (state.filter.timezone) {
-			// 			return lib.locale.timezone.includes(state.filter.timezone);
-			// 		}
-			// 	});
-			// }
+			if (state.filter.region.value.length) {
+				res = res.filter((lib: Lib) => {
+					return state.filter.region.value.some((region) => {
+						return lib.locale.name === region;
+					});
+				});
+			}
+			if (state.filter.timezone.value.length) {
+				res = res.filter((lib: Lib) => {
+					return state.filter.timezone.value.some((tz) => {
+						return lib.locale.timezone === tz;
+					});
+				});
+			}
 			return res;
 		},
 		// sorted(state) {

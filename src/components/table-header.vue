@@ -27,7 +27,18 @@ export default class TableHeader extends Vue {
 	}
 
 	sort(): void {
-		this.$emit("sort", this.orderBy);
+		let sort = this.Sort;
+		if (this.Sort.by === this.orderBy && this.Sort.order === "asc") {
+			sort.order = "desc";
+			sort.by = this.orderBy;
+		} else if (this.Sort.by === this.orderBy && this.Sort.order === "desc") {
+			sort.by = "id";
+			sort.order = "asc";
+		} else {
+			this.orderBy && (sort.by = this.orderBy);
+			sort.order = "asc";
+		}
+		this.$store.dispatch("sort", sort);
 	}
 }
 </script>
@@ -50,6 +61,15 @@ export default class TableHeader extends Vue {
 	}
 	&:hover .th-button-hover-icon {
 		display: inline;
+	}
+}
+@media (max-width: 1024px) {
+	.th-button {
+		font-size: 12px;
+		text-transform: initial;
+		padding: 0 2px;
+		overflow: hidden;
+		word-break: break-all;
 	}
 }
 </style>

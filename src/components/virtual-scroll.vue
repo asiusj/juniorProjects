@@ -8,7 +8,7 @@
 	>
 		<div class="scroll" :style="{ height: itemHeight * count + 'px' }">
 			<div
-				v-for="(item, i) in items"
+				v-for="(item, i) in LibsToShow"
 				:key="i"
 				class="scroll-item"
 				:style="{ height: itemHeight + 'px', top: itemHeight * (position + i) + 'px' }"
@@ -20,6 +20,7 @@
 </template>
 
 <script lang="ts">
+import Lib from "@/models/lib";
 import { Options, Vue } from "vue-class-component";
 import { Prop } from "vue-property-decorator";
 
@@ -32,6 +33,12 @@ export default class VirtualScroll extends Vue {
 	@Prop() count!: number;
 	@Prop({ default: 0 }) pos!: number;
 	position = this.pos;
+
+	get LibsToShow(): Lib[] {
+		const start = this.position;
+		const end = start + this.pageVieportSize;
+		return this.items.slice(start, end);
+	}
 
 	onScr(): void {
 		const sb = this.$refs["scroll-body"] as HTMLElement;
@@ -60,7 +67,7 @@ export default class VirtualScroll extends Vue {
 		.scroll-item {
 			position: absolute;
 			width: 100%;
-			border-bottom: #666 1px solid;
+			// border-bottom: #666 1px solid;
 		}
 	}
 }
