@@ -1,8 +1,10 @@
 type Lib = {
+	id: number;
 	name: string;
 	description: string;
 	address: string;
 	image: {
+		title: string;
 		url: string;
 	};
 	contacts: {
@@ -12,6 +14,11 @@ type Lib = {
 				value: string;
 			}
 		];
+		email: string;
+	};
+	locale: {
+		name: string;
+		timezone: string
 	};
 };
 
